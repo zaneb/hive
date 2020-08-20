@@ -176,7 +176,7 @@ func (a *AWSActuator) GenerateMachineSets(cd *hivev1.ClusterDeployment, pool *hi
 		subnets,
 		computePool,
 		pool.Spec.Name,
-		workerUserDataName,
+		workerUserData(clusterVersion),
 		userTags,
 	)
 	if err != nil {

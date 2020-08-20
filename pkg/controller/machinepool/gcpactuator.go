@@ -129,6 +129,10 @@ func (a *GCPActuator) GenerateMachineSets(cd *hivev1.ClusterDeployment, pool *hi
 	if pool.Spec.Platform.GCP == nil {
 		return nil, false, errors.New("MachinePool is not for GCP")
 	}
+	clusterVersion, err := getClusterVersion(cd)
+	if err != nil {
+		return nil, false, fmt.Errorf("Unable to get cluster version: %v", err)
+	}
 
 	leases := &hivev1.MachinePoolNameLeaseList{}
 	if err := a.client.List(
@@ -234,7 +238,7 @@ func (a *GCPActuator) GenerateMachineSets(cd *hivev1.ClusterDeployment, pool *hi
 		computePool,
 		a.imageID,
 		workerRole,
-		workerUserDataName,
+		workerUserData(clusterVersion),
 	)
 	return installerMachineSets, err == nil, errors.Wrap(err, "failed to generate machinesets")
 }

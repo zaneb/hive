@@ -58,6 +58,10 @@ func (a *VSphereActuator) GenerateMachineSets(cd *hivev1.ClusterDeployment, pool
 	if pool.Spec.Platform.VSphere == nil {
 		return nil, false, errors.New("MachinePool is not for VSphere")
 	}
+	clusterVersion, err := getClusterVersion(cd)
+	if err != nil {
+		return nil, false, fmt.Errorf("Unable to get cluster version: %v", err)
+	}
 
 	computePool := baseMachinePool(pool)
 	computePool.Platform.VSphere = &installertypesvsphere.MachinePool{
@@ -91,7 +95,7 @@ func (a *VSphereActuator) GenerateMachineSets(cd *hivev1.ClusterDeployment, pool
 		computePool,
 		a.osImage,
 		workerRole,
-		workerUserDataName,
+		workerUserData(clusterVersion),
 	)
 	if err != nil {
 		return nil, false, errors.Wrap(err, "failed to generate machinesets")
